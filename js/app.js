@@ -3,17 +3,18 @@ const cartasEstudiantes = document.querySelector("#cartasEstudiantes");
 const cartasProfesores = document.querySelector("#cartasProfesores");
 const templateEstudiantes = document.querySelector("#templateEstudiantes").content
 const templateProfesores = document.querySelector("#templateProfesores").content
+const alert = document.querySelector(".alert")
 
 const estudiantes = [];
 const profesores = [];
 
 document.addEventListener("click", (e) => {
     // console.log(e.target.dataset.nombre);
-    if(e.target.dataset.nombre) {
+    if(e.target.dataset.uid) {
         // console.log(e.target.matches(".btn-success"));
         if(e.target.matches(".btn-success")){
             estudiantes.map(item => {
-                if(item.nombre === e.target.dataset.nombre) {
+                if(item.uid === e.target.dataset.uid) {
                     item.setEstado = true
                 }
                 // console.log(item)
@@ -22,7 +23,7 @@ document.addEventListener("click", (e) => {
         }
         if(e.target.matches(".btn-danger")){
             estudiantes.map(item => {
-                if(item.nombre === e.target.dataset.nombre) {
+                if(item.uid === e.target.dataset.uid) {
                     item.setEstado = false
                 }
                 // console.log(item)
@@ -37,6 +38,11 @@ class Persona {
     constructor(nombre, edad){
         this.nombre = nombre
         this.edad = edad
+
+        // para no tener problemas con nombres identicos
+        this.uid = `${Date.now()}`;
+
+        // Date.now() devuelve los milisegundos transcurridos desde las 00:00:00 UTC del 1 de enero de 1970
     }
 
     static pintarPersonaUI(personas, tipo){
@@ -99,8 +105,8 @@ class Estudiante extends Persona {
             ? "Aprobado" 
             : "Reprobado";
 
-        clone.querySelector(".btn-success").dataset.nombre = this.nombre
-        clone.querySelector(".btn-danger").dataset.nombre = this.nombre
+        clone.querySelector(".btn-success").dataset.uid = this.uid;
+        clone.querySelector(".btn-danger").dataset.uid = this.uid;
 
         return clone;
     }
@@ -123,9 +129,19 @@ class Profesor extends Persona {
 formulario.addEventListener("submit", e => {
     e.preventDefault()
 
-    const datos = new FormData(formulario)
-    const [nombre, edad, opcion] = [...datos.values()]
+    alert.classList.add("d-none");
+
+    const datos = new FormData(formulario);
+    const [nombre, edad, opcion] = [...datos.values()];
     // console.log(nombre, edad, opcion);
+
+
+    // IMPORTANTE PARA FORMULARIOS
+    if(!nombre.trim() || !edad.trim() || !opcion.trim) {
+        console.log("datos faltantes");
+        alert.classList.remove("d-none");
+        return;
+    }
 
     if(opcion === "Estudiante"){
         const estudiante = new Estudiante(nombre, edad);
